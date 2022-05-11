@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">RssReader</string>
+
+    <string name="connection_error">例外：入出力処理中</string>
+    <string name="xml_error">例外：XmlPullParserに関連</string>
+
+    <string name="description">pictures</string>
+</resources>
