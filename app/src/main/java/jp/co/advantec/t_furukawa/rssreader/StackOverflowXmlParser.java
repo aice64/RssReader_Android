@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * XML データを解析するクラス<br></br>
+ * 参考：https://developer.android.com/training/basics/network-ops/xml?hl=ja
+ */
 public class StackOverflowXmlParser {
 
 	private static final String ns = null;
