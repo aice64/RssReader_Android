@@ -1,5 +1,7 @@
 package jp.co.advantec.t_furukawa.rssreader;
 
+import androidx.annotation.UiThread;
+import androidx.annotation.WorkerThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.os.HandlerCompat;
 
@@ -66,14 +68,15 @@ public class MainActivity extends AppCompatActivity {
 	 * 非同期でRSS(XML)をダウンロードを実行するための処理
 	 * @param url
 	 */
+	@UiThread		// スレッドアノテーション：このメソッドがUIスレッドで実行されることがコンパイラによって保障させる
 	private void downloadXmlConcurrent(final String url) {
 
-		Looper mainLooper = Looper.getMainLooper();
-		Handler handler = HandlerCompat.createAsync(mainLooper);
+		Looper mainLooper = Looper.getMainLooper();					// getMainLooperを実行したスレッド（UIスレッド）に処理を戻すことができる
+		Handler handler = HandlerCompat.createAsync(mainLooper);	// Handlerオブジェクトが、戻り先としてUIスレッドを保証してくれる。
 
-		DownloadXmlBackgroundThread backgroundThread = new DownloadXmlBackgroundThread(handler, url);
-		ExecutorService executor = Executors.newSingleThreadExecutor();						// 別スレッドで動作するインスタンスを生成
-		executor.submit(backgroundThread);													// 別スレッドで処理（非同期処理）を実行
+		DownloadXmlBackgroundThread backgroundThread = new DownloadXmlBackgroundThread(handler, url);	// Handlerオブジェクトを非同期処理を行うDownloadXmlBackgroundThreadに渡す。
+		ExecutorService executor = Executors.newSingleThreadExecutor();									// 別スレッドで動作するインスタンスを生成
+		executor.submit(backgroundThread);																// 別スレッドで処理（非同期処理）を実行
 	}
 
 	/**
@@ -83,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
 		/**
 		 * ハンドラオブジェクト<br></br>
+		 * スレッド間の通信を行ってくれるオブジェクト<br></br>
 		 * 各スレッドから書き換えができないように、finalキーワードを付与して複数のスレッドで問題なく動作するようにする（スレッドセーフ）
 		 */
 		private final Handler _handler;
@@ -90,10 +94,6 @@ public class MainActivity extends AppCompatActivity {
 		 * RSS(XML)を取得するURL
 		 */
 		private final String _url;
-		/**
-		 * XMLをパーサーした後の登録リスト
-		 */
-		private List<StackOverflowXmlParser.Entry> entryList;
 
 		/**
 		 * コンストラクタ
@@ -105,13 +105,15 @@ public class MainActivity extends AppCompatActivity {
 			this._url = url;
 		}
 
+		@WorkerThread		// スレッドアノテーション：このメソッドがワーカースレッドでのみ呼び出されることを保証する
 		@Override
 		public void run() {
 			// XMLをダウンロードする処理
-			Integer result = 0;         // 実行結果
 			try {
-				this.entryList = loadXmlFromNetwork(this._url);
-				result = 1;
+				List<StackOverflowXmlParser.Entry> entryList;
+				entryList = loadXmlFromNetwork(this._url);
+				DownloadXmlPostExecutor postExecutor = new DownloadXmlPostExecutor(entryList);
+				this._handler.post(postExecutor);
 			}
 			catch (IOException e) {
 				e.printStackTrace();
@@ -119,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
 			catch (XmlPullParserException e) {
 				e.printStackTrace();
 			}
+
 		}
 
 
@@ -180,6 +183,47 @@ public class MainActivity extends AppCompatActivity {
 
 	}
 
+	/**
+	 * 非同期でRSS(XML)をダウンロードした後にUIスレッドで表示するためのクラス
+	 */
+	private class DownloadXmlPostExecutor implements Runnable {
+
+		/**
+		 * XMLをパーサーした後の登録リスト
+		 */
+		private List<StackOverflowXmlParser.Entry> entryList;
+
+		public DownloadXmlPostExecutor(List<StackOverflowXmlParser.Entry> entryList) {
+			this.entryList = entryList;
+		}
+
+		@UiThread		// スレッドアノテーション：このメソッドがUIスレッドで実行されることがコンパイラによって保障させる
+		@Override
+		public void run() {
+			// UIスレッドで行う処理
+
+			//----------------------
+			// ListView生成（CustomAdapter ※独自のカスタムAdapter）
+			//----------------------
+			// ListViewのインスタンスを生成
+			ListView listView = findViewById(R.id.listView_RssFeed);
+
+			// BaseAdapter を継承したadapterのインスタンスを生成
+			// レイアウトファイル List_Items.xml を
+			// activity_main.xml に inflate するためにadapterに引数として渡す。
+			BaseAdapter adapter = new CustomAdapter(MainActivity.this, R.layout.list_items, this.entryList);
+
+			// 非同期処理（RSS(XML)をダウンロード）完了後
+
+			// Adapter設定
+			CustomAdapter customAdapter = (CustomAdapter)adapter;
+			// 非同期処理終了後、ListViewにadapterをセット
+			if(customAdapter != null) {							// null=非同期処理でadapterが設定できなかった
+				listView.setAdapter(customAdapter);
+			}
+			Log.i("DownloadXmlPostExecutor", "XMLダウンロード完了");
+		}
+	}
 
 
 	/**
