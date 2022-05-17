@@ -56,27 +56,27 @@ public class MainActivity extends AppCompatActivity {
 		// 非同期処理でRSS(XML)をダウンロード・パース
 		//----------------------
 		// 非同期処理でRSS(XML)をダウンロード
-//		DownloadXmlTask downloadXmlTask = new DownloadXmlTask(this.getApplicationContext());
-//		downloadXmlTask.execute(RSS_URL);		// 指定したURLからXMLをダウンロード（非同期処理）
-//		Log.i("MainActivity", "XMLダウンロード待ち開始");
-
 		downloadXmlConcurrent(RSS_URL);
 
 	}
 
 	/**
-	 * 非同期でRSS(XML)をダウンロードを実行するための処理
+	 * RSS(XML)をダウンロードを実行する処理
 	 * @param url
 	 */
 	@UiThread		// スレッドアノテーション：このメソッドがUIスレッドで実行されることがコンパイラによって保障させる
 	private void downloadXmlConcurrent(final String url) {
 
+		//--------------------------------------
+		// 非同期でRSS(XML)をダウンロードする
+		//--------------------------------------
+		Log.i("MainActivity", "XMLダウンロード開始");
 		Looper mainLooper = Looper.getMainLooper();					// getMainLooperを実行したスレッド（UIスレッド）に処理を戻すことができる
 		Handler handler = HandlerCompat.createAsync(mainLooper);	// Handlerオブジェクトが、戻り先としてUIスレッドを保証してくれる。
 
 		DownloadXmlBackgroundThread backgroundThread = new DownloadXmlBackgroundThread(handler, url);	// Handlerオブジェクトを非同期処理を行うDownloadXmlBackgroundThreadに渡す。
-		ExecutorService executor = Executors.newSingleThreadExecutor();									// 別スレッドで動作するインスタンスを生成
-		executor.submit(backgroundThread);																// 別スレッドで処理（非同期処理）を実行
+		ExecutorService executor = Executors.newSingleThreadExecutor();									// 別スレッドで動作するインスタンスを生成する。
+		executor.submit(backgroundThread);																// 別スレッドで処理（非同期処理）を実行する
 	}
 
 	/**
@@ -105,10 +105,14 @@ public class MainActivity extends AppCompatActivity {
 			this._url = url;
 		}
 
+		/**
+		 * 非同期処理の実態<br></br>
+		 * ExecutorServiceのsubmit()によって非同期で処理される
+		 */
 		@WorkerThread		// スレッドアノテーション：このメソッドがワーカースレッドでのみ呼び出されることを保証する
 		@Override
 		public void run() {
-			// XMLをダウンロードする処理
+			// XMLをダウンロードする
 			try {
 				List<StackOverflowXmlParser.Entry> entryList;
 				entryList = loadXmlFromNetwork(this._url);
@@ -123,10 +127,6 @@ public class MainActivity extends AppCompatActivity {
 			}
 
 		}
-
-
-
-
 
 
 		/**
@@ -197,11 +197,12 @@ public class MainActivity extends AppCompatActivity {
 			this.entryList = entryList;
 		}
 
+		/**
+		 * UIスレッドで行う処理
+		 */
 		@UiThread		// スレッドアノテーション：このメソッドがUIスレッドで実行されることがコンパイラによって保障させる
 		@Override
 		public void run() {
-			// UIスレッドで行う処理
-
 			//----------------------
 			// ListView生成（CustomAdapter ※独自のカスタムAdapter）
 			//----------------------
@@ -226,137 +227,4 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 
-	/**
-	 * 	XMLダウンロード
-	 */
-	private class DownloadXmlTask extends AsyncTask<String, Void, Integer> {
-
-		/**
-		 * XMLをパーサーした後の登録リスト
-		 */
-		private List<StackOverflowXmlParser.Entry> entryList;
-		private Context context;
-
-
-		/**
-		 * コンストラクタ
-		 * @param context ActivityのContext
-		 */
-		public DownloadXmlTask(Context context) {
-			this.context = context;
-		}
-
-		/**
-		 * 非同期で処理する内容<br></br>
-		 * loadXmlFromNetwork()メソッドを実行し、RSS配信サイトのURLをパラメータとして渡します。
-		 * @param urls RSS配信サイトのURL
-		 * @return result　1:正常
-		 */
-		@Override
-		protected Integer doInBackground(String... urls) {
-			/*
-			 *	[note]
-			 * 	引数は、可変長引数になっており、受け取るのはurls[]配列変数になる。
-			 * 	なぜ可変長引数になっている？
-			 *	⇒呼び出す側は、羅列にして書いていいので、呼び出す前にいちいち配列を作らなくていいというメリットがある。
-			 */
-			Integer result = 0;         // 実行結果
-			try {
-				this.entryList = loadXmlFromNetwork(urls[0]);
-				result = 1;
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-			catch (XmlPullParserException e) {
-				e.printStackTrace();
-			}
-
-			return result;
-		}
-
-		/**
-		 * doInBackgroundメソッドの実行後にメインスレッドで実行する。<br></br>
-		 * 返された文字列を受け取り、UI内に表示します。
-		 * @param retNo doInBackgroundメソッドの戻り値（アダプタ）
-		 */
-		@Override
-		protected void onPostExecute(Integer retNo) {
-			//----------------------
-			// ListView生成（CustomAdapter ※独自のカスタムAdapter）
-			//----------------------
-			// ListViewのインスタンスを生成
-			ListView listView = findViewById(R.id.listView_RssFeed);
-
-			// BaseAdapter を継承したadapterのインスタンスを生成
-			// レイアウトファイル List_Items.xml を
-			// activity_main.xml に inflate するためにadapterに引数として渡す。
-			BaseAdapter adapter = new CustomAdapter(this.context, R.layout.list_items, this.entryList);
-
-			// 非同期処理（RSS(XML)をダウンロード）完了後
-
-			// Adapter設定
-			CustomAdapter customAdapter = (CustomAdapter)adapter;
-			// 非同期処理終了後、ListViewにadapterをセット
-			if(customAdapter != null) {							// null=非同期処理でadapterが設定できなかった
-				listView.setAdapter(customAdapter);
-			}
-			Log.i("DownloadXmlTask", "XMLダウンロード完了");
-		}
-
-
-		/**
-		 * RSS配信サイトのURLからXMLをアップロードし、それをパースして結合します。
-		 * HTMLのマークアップ。HTML文字列を返します。
-		 * @param urlString RSS配信サイトのURL
-		 * @return メインアクティビティのUIに表示されるHTML文字列
-		 * @throws XmlPullParserException
-		 * @throws IOException
-		 */
-		private List<StackOverflowXmlParser.Entry> loadXmlFromNetwork(String urlString) throws XmlPullParserException, IOException {
-			InputStream stream = null;
-
-			// パーサーのインスタンス化
-			StackOverflowXmlParser stackOverflowXmlParser = new StackOverflowXmlParser();
-
-			// パーサーのEntryオブジェクトのListと変数を作成する。（XMLフィードから抽出する各フィールドの値を保持するため。）
-			List<StackOverflowXmlParser.Entry> entries = null;
-
-			try {
-				stream = downloadUrl(urlString);						// 配信サイトのURLの接続を確立し、入力ストリームを取得する。
-				entries = stackOverflowXmlParser.parse(stream);			// 配信サイトのRSSからパースされたデータリストを取得する。
-
-			}
-			finally {
-				// アプリが終了した後、必ず入力Streamが閉じられるようにします。
-				if(stream != null) {
-					stream.close();
-				}
-			}
-
-			return entries;
-		}
-
-		/**
-		 * URLの文字列が与えられると、接続を確立し、入力ストリームを取得する。
-		 * @param urlString 配信サイトのURL
-		 * @return URLの接続からの入力を受け取る入力ストリーム
-		 * @throws IOException 入力ストリームの作成中に入出力エラーが発生した場合
-		 */
-		private InputStream downloadUrl(String urlString) throws IOException {
-			URL url = new URL(urlString);											// String 表現から URL オブジェクトを生成
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();		// URL が参照するリモートオブジェクトへの接続を表す URLConnection オブジェクトを返します。
-			conn.setReadTimeout(10000 /* ms */);									// 読み取りタイムアウトを、指定されたミリ秒単位のタイムアウトに設定
-			conn.setConnectTimeout(15000 /* ms */);									// URLConnection が参照するリソースへの通信リンクのオープン時に、指定されたミリ秒単位のタイムアウト値が使用されるように設定
-			conn.setRequestMethod("GET");											// URL要求のメソッドを設定
-			conn.setDoInput(true);													// URLConnection の doInput フィールド値を指定した値に設定 (true = アプリケーションが URL 接続からデータを読み取る予定である)
-
-			// 接続する
-			conn.connect();															// URL が参照するリソースへの通信リンクを確立します
-
-			return conn.getInputStream();
-		}
-
-
-	}
 }
