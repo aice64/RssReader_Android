@@ -4,8 +4,11 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.UiThread;
 import androidx.annotation.WorkerThread;
@@ -198,8 +201,34 @@ public class DownloadXml {
 			if(customAdapter != null) {							// null=非同期処理でadapterが設定できなかった
 				listView.setAdapter(customAdapter);
 			}
+
+			ListViewClickListener listener = new ListViewClickListener();
+			listView.setOnItemClickListener(listener);
 			Log.i("DownloadXmlPostExecutor", "XMLダウンロード完了");
 		}
+
+
+		/**
+		 * ListViewがタップされた時の処理を記述したクラス<br></br>
+		 * 参考：https://akira-watson.com/android/listview_2.html
+		 */
+		private class ListViewClickListener implements AdapterView.OnItemClickListener {
+
+			/**
+			 *
+			 * @param parent	タップされたリスト全体
+			 * @param view		タップされた1行分の画面部品
+			 * @param position	タップされた行番号。一番上から0始まり
+			 * @param id		SimpleCursorAdapterを使う場合、DBの主キー。それ以外は第3引数のpositionと同じ値
+			 */
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+				// クリックされたpositionの記事URLを取得
+				String url = entryList.get(position).link;
+			}
+		}
 	}
+
 
 }

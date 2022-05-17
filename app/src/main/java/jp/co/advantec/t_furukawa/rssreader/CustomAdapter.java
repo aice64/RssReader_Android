@@ -14,6 +14,11 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+/**
+ * BaseAdapterを継承したカスタムでadapterを作成するクラス<br></br>
+ * 参照：https://akira-watson.com/android/listview_2.html
+ *
+ */
 public class CustomAdapter extends BaseAdapter {
 
 	private Context context;
