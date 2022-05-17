@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 		//----------------------
 		// 非同期処理でRSS(XML)をダウンロード
 		DownloadXml downloadXml = new DownloadXml(RSS_URL);
-		downloadXml.DisplayListView(MainActivity.this, listView);								// リスト状に表示
+		downloadXml.DisplayListView(listView);								// リスト状に表示
 
 	}
 

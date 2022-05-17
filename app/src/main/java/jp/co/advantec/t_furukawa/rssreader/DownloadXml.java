@@ -28,7 +28,9 @@ public class DownloadXml {
 	 */
 	private String rssUrl;
 
-	private Context context;
+	/**
+	 * 取得したフィードをリスト状に記事一覧画面表示するListView
+	 */
 	private ListView listView;
 
 	public DownloadXml(String rssUrl) {
@@ -39,9 +41,8 @@ public class DownloadXml {
 	 * リスト状に記事一覧画面を表示する
 	 */
 	@UiThread		// スレッドアノテーション：このメソッドがUIスレッドで実行されることがコンパイラによって保障させる
-	public void DisplayListView(Context context, ListView listView) {
+	public void DisplayListView(ListView listView) {
 
-		this.context = context;
 		this.listView = listView;
 
 		//--------------------------------------
@@ -176,7 +177,8 @@ public class DownloadXml {
 		}
 
 		/**
-		 * UIスレッドで行う処理
+		 * UIスレッドで行う処理<br></br>
+		 * Handlerオブジェクトのpost()メソッドを、非同期処理のrun()メソッド内で実行すると、Handlerオブジェクトを生成した元スレッドで処理を行う。
 		 */
 		@UiThread        // スレッドアノテーション：このメソッドがUIスレッドで実行されることがコンパイラによって保障させる
 		@Override
@@ -187,9 +189,8 @@ public class DownloadXml {
 			// BaseAdapter を継承したadapterのインスタンスを生成
 			// レイアウトファイル List_Items.xml を
 			// activity_main.xml に inflate するためにadapterに引数として渡す。
+			Context context = listView.getContext();
 			BaseAdapter adapter = new CustomAdapter(context, R.layout.list_items, this.entryList);
-
-			// 非同期処理（RSS(XML)をダウンロード）完了後
 
 			// Adapter設定
 			CustomAdapter customAdapter = (CustomAdapter)adapter;
