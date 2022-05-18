@@ -50,7 +50,10 @@ public class MainActivity extends AppCompatActivity {
 	 */
 	private static final String RSS_URL = "https://hamusoku.com/index.rdf";
 
-	private WebView webView;
+	/**
+	 * 遷移するActivityに渡すデータの key(name)
+	 */
+	public static final String EXTRA_NAME_STRING_ARTICLE_URL = "記事URL";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +67,11 @@ public class MainActivity extends AppCompatActivity {
 		//----------------------
 		// 非同期処理でRSS(XML)をダウンロード
 		DownloadXml downloadXml = new DownloadXml(RSS_URL);
-		downloadXml.DisplayListView(listView);								// リスト状に表示
+		downloadXml.DisplayListView(listView);									// リスト状に表示
 
+		//--------------------------------------
+		// ListViewのをタップした時のリスナクラス : onItemClickListenerインタフェースを実装する。
+		//--------------------------------------
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			/**
 			 * ListViewがタップされた時の処理<br></br>
@@ -77,26 +83,15 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-				// XMLをパーサーした後の登録リスト と クリックされたpositionからの記事URLを取得する
+				// XMLをパーサーした後の登録リスト と タップされたpositionからの記事URLを取得する
 				List<StackOverflowXmlParser.Entry> entryList;
-				entryList = downloadXml.getEntryList();
-				String url = entryList.get(position).link;
+				entryList = downloadXml.getEntryList();			// XMLをパーサーした後の登録リスト
+				String url = entryList.get(position).link;		// タップされたpositionからの記事URLを取得
 
-				setContentView(R.layout.web);
-				webView = findViewById(R.id.web_view);
-
-				webView.getSettings().setJavaScriptEnabled(true);				// JavaScriptを有効（Javascriptインジェクションに対する脆弱性に注意）
-				webView.getSettings().setDomStorageEnabled(true);				// Web Storageを有効（バックキーで戻る操作ができる）
-
-				getWindow().setFlags(											// Hardware Acceleration ON
-						WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-						WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-
-				webView.loadUrl(url);
-//				// WebViewに切り替える
-//				Intent intent = new Intent(getApplication(), WebViewActivity.class);
-//				WebViewActivity webViewActivity = new WebViewActivity();
-//				webViewActivity.loadUrlDisplay(url);
+				// アプリの画面をWebView画面に遷移させる
+				Intent intent = new Intent(getApplication(), WebViewActivity.class);
+				intent.putExtra(EXTRA_NAME_STRING_ARTICLE_URL, url);		// 遷移するActivityにデータを渡す
+				startActivity(intent);
 			}
 		});
 	}

@@ -1,5 +1,6 @@
 package jp.co.advantec.t_furukawa.rssreader;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.WindowManager;
@@ -12,6 +13,12 @@ import androidx.appcompat.app.AppCompatActivity;
  * 参考：<br></br>
  * [Android] WebView でウェブアプリの作成<br></br>
  * https://akira-watson.com/android/webview.html<br></br>
+ *
+ * [Android] アプリの画面を遷移させる<br></br>
+ * https://akira-watson.com/android/activity-1.html<br></br>
+ *
+ * [Android] アプリの画面遷移とActivity間のデータ転送<br></br>
+ * https://akira-watson.com/android/activity-2.html<br></br>
  */
 public class WebViewActivity  extends AppCompatActivity {
 
@@ -19,32 +26,27 @@ public class WebViewActivity  extends AppCompatActivity {
 	 *	Webページを表示するView
 	 */
 	private WebView webView;
-	// Todo:onCreateメソッドでsuper.onCreateとsetContentViewがいるあも
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.web);
-	}
 
-	/**
-	 * 引数のURLをWebViewで表示する
-	 * @param url
-	 */
-	public void loadUrlDisplay(String url) {
+		// 遷移元のActivityからデータを受け取る
+		Intent intent = getIntent();
+		String url = intent.getStringExtra(MainActivity.EXTRA_NAME_STRING_ARTICLE_URL);		// 記事URL
 
-		setContentView(R.layout.web);
+		// WebViewの設定
 		webView = findViewById(R.id.web_view);
-
-		webView.getSettings().setJavaScriptEnabled(true);				// JavaScriptを有効（Javascriptインジェクションに対する脆弱性に注意）
+		webView.getSettings().setJavaScriptEnabled(false);				// JavaScriptを無効（有効にする場合、Javascriptインジェクションに対する脆弱性に注意）
 		webView.getSettings().setDomStorageEnabled(true);				// Web Storageを有効（バックキーで戻る操作ができる）
 
-		getWindow().setFlags(											// Hardware Acceleration ON
+		getWindow().setFlags(
 				WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-				WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+				WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);	// ハードウェアアクセラレーションを有効
 
-		webView.loadUrl(url);
-
+		// WebViewを開く
+		webView.loadUrl(url);											// URLを指定してWebViewを開く
 	}
 
 	/**
@@ -62,7 +64,7 @@ public class WebViewActivity  extends AppCompatActivity {
 				webView.goBack();
 			}
 			else {
-				finish();
+				finish();		// Activity を終了
 			}
 			return true;
 		}
