@@ -16,6 +16,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.util.Xml;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 	 */
 	private static final String RSS_URL = "https://hamusoku.com/index.rdf";
 
+	private WebView webView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -80,10 +82,21 @@ public class MainActivity extends AppCompatActivity {
 				entryList = downloadXml.getEntryList();
 				String url = entryList.get(position).link;
 
-				// WebViewに切り替える
-				Intent intent = new Intent(getApplication(), WebViewActivity.class);
-				WebViewActivity webViewActivity = new WebViewActivity();
-				webViewActivity.loadUrlDisplay(url);
+				setContentView(R.layout.web);
+				webView = findViewById(R.id.web_view);
+
+				webView.getSettings().setJavaScriptEnabled(true);				// JavaScriptを有効（Javascriptインジェクションに対する脆弱性に注意）
+				webView.getSettings().setDomStorageEnabled(true);				// Web Storageを有効（バックキーで戻る操作ができる）
+
+				getWindow().setFlags(											// Hardware Acceleration ON
+						WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+						WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+
+				webView.loadUrl(url);
+//				// WebViewに切り替える
+//				Intent intent = new Intent(getApplication(), WebViewActivity.class);
+//				WebViewActivity webViewActivity = new WebViewActivity();
+//				webViewActivity.loadUrlDisplay(url);
 			}
 		});
 	}
