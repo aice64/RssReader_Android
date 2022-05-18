@@ -15,6 +15,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.util.Xml;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -94,6 +97,33 @@ public class MainActivity extends AppCompatActivity {
 				startActivity(intent);
 			}
 		});
+	}
+
+	/**
+	 * アプリバーにメニューを作成するメソッド
+	 * @param menu
+	 * @return
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		// インフレーターを使ってメニューを表示
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.option_menu, menu);
+		return true;
+	}
+
+	/**
+	 * メニューボタンを押した時の反応を定義するメソッド
+	 * @param item
+	 * @return
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		// Todo:RSS(XML)を再ダウンロード
+
+		return true;
 	}
 
 }

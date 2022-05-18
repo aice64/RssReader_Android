@@ -5,4 +5,6 @@
     <string name="xml_error">例外：XmlPullParserに関連</string>
 
     <string name="description">pictures</string>
+
+    <string name="button_title">更新</string>
 </resources>

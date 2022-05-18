@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<!--	アクションボタンを設定-->
+	<!--	showAsActionはifRoomでアプリバーにボタンが配置される。-->
+	<!--	ifRoom「空間があれば」-->
+	<item
+		android:id="@+id/reload_button"
+		android:icon="@drawable/ic_baseline_replay_24"
+		android:title="@string/button_title"
+		app:showAsAction="ifRoom"/>
+</menu>
