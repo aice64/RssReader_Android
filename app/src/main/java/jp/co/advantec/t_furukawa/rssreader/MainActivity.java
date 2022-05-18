@@ -58,19 +58,31 @@ public class MainActivity extends AppCompatActivity {
 	 */
 	public static final String EXTRA_NAME_STRING_ARTICLE_URL = "記事URL";
 
+	/**
+	 *	取得したフィードを記事一覧で表示するListView
+	 */
+	private ListView listView;
+
+	/**
+	 * RSS(XML)ダウンロードするクラスのインスタンス
+	 */
+	private DownloadXml downloadXml;
+
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
 		// ListViewのインスタンスを生成
-		ListView listView = findViewById(R.id.listView_RssFeed);				// Todo:DownloadXmlPostExecutorクラスのrunメソッドでfindViewByIdをしたいけどエラーが出る。解決方法がわからない。
+		listView = findViewById(R.id.listView_RssFeed);				// Todo:DownloadXmlPostExecutorクラスのrunメソッドでfindViewByIdをしたいけどエラーが出る。解決方法がわからない。
+		// RSS(XML)ダウンロードのインスタンスを生成
+		downloadXml = new DownloadXml(RSS_URL);
+
 		//----------------------
-		// 非同期処理でRSS(XML)をダウンロード・パース
+		// 非同期処理でRSS(XML)をダウンロード・パース・リスト表示
 		//----------------------
-		// 非同期処理でRSS(XML)をダウンロード
-		DownloadXml downloadXml = new DownloadXml(RSS_URL);
-		downloadXml.DisplayListView(listView);									// リスト状に表示
+		downloadXml.DisplayListView(listView);						// RSS(XML)のフィードをリスト状に表示
 
 		//--------------------------------------
 		// ListViewのをタップした時のリスナクラス : onItemClickListenerインタフェースを実装する。
@@ -121,7 +133,14 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
-		// Todo:RSS(XML)を再ダウンロード
+		switch(item.getItemId()) {
+			case R.id.reload_button:						// 更新ボタン
+				// RSS(XML)を再ダウンロードとリストを描画
+				downloadXml.DisplayListView(listView);		// RSS(XML)のフィードをリスト状に表示
+				break;
+			default:
+				break;
+		}
 
 		return true;
 	}
