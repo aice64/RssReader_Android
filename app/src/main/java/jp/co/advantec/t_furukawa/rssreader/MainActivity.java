@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.os.HandlerCompat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -14,8 +15,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.util.Xml;
+import android.view.View;
 import android.webkit.WebView;
 import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
@@ -53,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 
 		// ListViewのインスタンスを生成
-		ListView listView = findViewById(R.id.listView_RssFeed);				// Todo:DownloadXmlPostExecutorクラスのrunメソッドでfindViewByIdをしたいけど方法がわからない。
+		ListView listView = findViewById(R.id.listView_RssFeed);				// Todo:DownloadXmlPostExecutorクラスのrunメソッドでfindViewByIdをしたいけどエラーが出る。解決方法がわからない。
 		//----------------------
 		// 非同期処理でRSS(XML)をダウンロード・パース
 		//----------------------
@@ -61,6 +64,28 @@ public class MainActivity extends AppCompatActivity {
 		DownloadXml downloadXml = new DownloadXml(RSS_URL);
 		downloadXml.DisplayListView(listView);								// リスト状に表示
 
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			/**
+			 * ListViewがタップされた時の処理<br></br>
+			 * @param parent	タップされたリスト全体
+			 * @param view		タップされた1行分の画面部品
+			 * @param position	タップされた行番号。一番上から0始まり
+			 * @param id		SimpleCursorAdapterを使う場合、DBの主キー。それ以外は第3引数のpositionと同じ値
+			 */
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+				// XMLをパーサーした後の登録リスト と クリックされたpositionからの記事URLを取得する
+				List<StackOverflowXmlParser.Entry> entryList;
+				entryList = downloadXml.getEntryList();
+				String url = entryList.get(position).link;
+
+				// WebViewに切り替える
+				Intent intent = new Intent(getApplication(), WebViewActivity.class);
+				WebViewActivity webViewActivity = new WebViewActivity();
+				webViewActivity.loadUrlDisplay(url);
+			}
+		});
 	}
 
 }

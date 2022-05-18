@@ -1,6 +1,7 @@
 package jp.co.advantec.t_furukawa.rssreader;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -35,6 +36,19 @@ public class DownloadXml {
 	 * 取得したフィードをリスト状に記事一覧画面表示するListView
 	 */
 	private ListView listView;
+
+	/**
+	 * XMLをパーサーした後の登録リスト
+	 */
+	private List<StackOverflowXmlParser.Entry> entryList;
+
+	/**
+	 * getter
+	 * @return	XMLをパーサーした後の登録リスト
+	 */
+	public List<StackOverflowXmlParser.Entry> getEntryList() {
+		return entryList;
+	}
 
 	public DownloadXml(String rssUrl) {
 		this.rssUrl = rssUrl;
@@ -96,9 +110,8 @@ public class DownloadXml {
 		public void run() {
 			// XMLをダウンロードする
 			try {
-				List<StackOverflowXmlParser.Entry> entryList;
 				entryList = loadXmlFromNetwork(this._url);
-				DownloadXmlPostExecutor postExecutor = new DownloadXmlPostExecutor(entryList);
+				DownloadXmlPostExecutor postExecutor = new DownloadXmlPostExecutor();
 				this._handler.post(postExecutor);
 			}
 			catch (IOException e) {
@@ -171,15 +184,6 @@ public class DownloadXml {
 	private class DownloadXmlPostExecutor implements Runnable {
 
 		/**
-		 * XMLをパーサーした後の登録リスト
-		 */
-		private List<StackOverflowXmlParser.Entry> entryList;
-
-		public DownloadXmlPostExecutor(List<StackOverflowXmlParser.Entry> entryList) {
-			this.entryList = entryList;
-		}
-
-		/**
 		 * UIスレッドで行う処理<br></br>
 		 * Handlerオブジェクトのpost()メソッドを、非同期処理のrun()メソッド内で実行すると、Handlerオブジェクトを生成した元スレッドで処理を行う。
 		 */
@@ -193,7 +197,7 @@ public class DownloadXml {
 			// レイアウトファイル List_Items.xml を
 			// activity_main.xml に inflate するためにadapterに引数として渡す。
 			Context context = listView.getContext();
-			BaseAdapter adapter = new CustomAdapter(context, R.layout.list_items, this.entryList);
+			BaseAdapter adapter = new CustomAdapter(context, R.layout.list_items, entryList);
 
 			// Adapter設定
 			CustomAdapter customAdapter = (CustomAdapter)adapter;
@@ -202,32 +206,10 @@ public class DownloadXml {
 				listView.setAdapter(customAdapter);
 			}
 
-			ListViewClickListener listener = new ListViewClickListener();
-			listView.setOnItemClickListener(listener);
 			Log.i("DownloadXmlPostExecutor", "XMLダウンロード完了");
 		}
 
 
-		/**
-		 * ListViewがタップされた時の処理を記述したクラス<br></br>
-		 * 参考：https://akira-watson.com/android/listview_2.html
-		 */
-		private class ListViewClickListener implements AdapterView.OnItemClickListener {
-
-			/**
-			 *
-			 * @param parent	タップされたリスト全体
-			 * @param view		タップされた1行分の画面部品
-			 * @param position	タップされた行番号。一番上から0始まり
-			 * @param id		SimpleCursorAdapterを使う場合、DBの主キー。それ以外は第3引数のpositionと同じ値
-			 */
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-				// クリックされたpositionの記事URLを取得
-				String url = entryList.get(position).link;
-			}
-		}
 	}
 
 
