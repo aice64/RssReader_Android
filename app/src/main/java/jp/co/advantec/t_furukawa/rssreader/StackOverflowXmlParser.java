@@ -230,18 +230,19 @@ public class StackOverflowXmlParser {
 		String text = readText(parser);
 
 		// 正規表現のパターンを作成
+		// 参考：https://odasusu.hatenablog.com/entry/20090331/1238499308	[文字列に含まれたURL、URIを取得するサンプル]
+		@SuppressWarnings("RegExpRedundantEscape")		// compile(正規表現チェックする文字列)のWarningを抑制
 		Pattern pattern = Pattern.compile(SEARCH_STRING_PREV + "(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+",Pattern.CASE_INSENSITIVE);
 		Matcher matcher = pattern.matcher(text);
 
 		if(matcher.find()) {
-			text = matcher.group();
-			// 正規表現による取得する文字列の例⇒ "<img src="https://livedoor.blogimg.jp/hamusoku/imgs/a/0/a02498cd.jpg"
+			text = matcher.group();								// 取得する文字列の例 ⇒ "<img src="https://livedoor.blogimg.jp/hamusoku/imgs/a/0/a02498cd.jpg"
 		}
 
 		// Image URLより前の文字列を切り出す
 		int index = text.indexOf(SEARCH_STRING_PREV);
 		index = index + SEARCH_STRING_PREV.length();			// 文字列の長さを取得
-		text = text.substring(index);							// "https://livedoor.blogimg.jp/hamusoku/imgs/a/0/a02498cd.jpg"などが設定されるはず
+		text = text.substring(index);							// 取得する文字列の例 ⇒ "https://livedoor.blogimg.jp/hamusoku/imgs/a/0/a02498cd.jpg"
 
 		return text;
 	}
