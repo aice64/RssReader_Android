@@ -4,8 +4,8 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.UiThread;
 import androidx.annotation.WorkerThread;
@@ -110,14 +110,19 @@ public class DownloadXml {
 			// XMLをダウンロードする
 			try {
 				entryList = loadXmlFromNetwork(this._url);
-				DownloadXmlPostExecutor postExecutor = new DownloadXmlPostExecutor();
-				this._handler.post(postExecutor);
 			}
 			catch (IOException e) {
+				// 入出力処理中の例外
 				e.printStackTrace();
 			}
 			catch (XmlPullParserException e) {
+				// XmlPullParserの機能がサポートされていない、または設定できない場合
 				e.printStackTrace();
+			}
+			finally {
+				// 例外が発生しても非同期処理後のUIスレッド処理は実行する。
+				DownloadXmlPostExecutor postExecutor = new DownloadXmlPostExecutor();
+				this._handler.post(postExecutor);
 			}
 
 		}
@@ -128,8 +133,8 @@ public class DownloadXml {
 		 * HTMLのマークアップ。HTML文字列を返します。
 		 * @param urlString RSS配信サイトのURL
 		 * @return メインアクティビティのUIに表示されるHTML文字列
-		 * @throws XmlPullParserException XMLデータの解析に失敗
-		 * @throws IOException 入出力例外の発生
+		 * @throws XmlPullParserException XmlPullParserの機能がサポートされていない、または設定できない場合
+		 * @throws IOException 入出力処理中の例外
 		 */
 		private List<StackOverflowXmlParser.Entry> loadXmlFromNetwork(String urlString) throws XmlPullParserException, IOException {
 			InputStream stream = null;
@@ -150,6 +155,7 @@ public class DownloadXml {
 				if(stream != null) {
 					stream.close();
 				}
+
 			}
 
 			return entries;
@@ -192,17 +198,20 @@ public class DownloadXml {
 			//----------------------
 			// ListView生成（CustomAdapter ※独自のカスタムAdapter）
 			//----------------------
-			// BaseAdapter を継承したadapterのインスタンスを生成
+
+			// BaseAdapter を継承したCustomAdapterのインスタンスを生成
 			// レイアウトファイル List_Items.xml を
 			// activity_main.xml に inflate するためにadapterに引数として渡す。
 			Context context = listView.getContext();
-			BaseAdapter adapter = new CustomAdapter(context, R.layout.list_items, entryList);
+			CustomAdapter customAdapter = new CustomAdapter(context, R.layout.list_items, entryList);
 
-			// Adapter設定
-			CustomAdapter customAdapter = (CustomAdapter)adapter;
 			// 非同期処理終了後、ListViewにadapterをセット
-			if(customAdapter != null) {							// null=非同期処理でadapterが設定できなかった
+			if(customAdapter.getCount() != 0) {							// 0以外=非同期処理でadapterが設定できなかった
 				listView.setAdapter(customAdapter);
+			}
+			else {
+				// adapterが設定できていない＝エラーメッセージを表示
+				Toast.makeText(listView.getContext(),"RSSの取得に失敗しました。", Toast.LENGTH_SHORT).show();
 			}
 
 			Log.i("DownloadXmlPostExecutor", "XMLダウンロード完了");
