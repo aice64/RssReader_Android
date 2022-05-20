@@ -103,16 +103,11 @@ public class MainActivity extends AppCompatActivity {
 
 		boolean rt = true;
 
-		switch(item.getItemId()) {
-			case R.id.reload_button:						// 更新ボタン
-				// RSS(XML)を再ダウンロードとリストを描画
-				downloadXml.DisplayListView(listView);		// RSS(XML)のフィードをリスト状に表示
-				break;
-
-			default:
-				// 処理をしない
-				rt = false;
-				break;
+		if (item.getItemId() == R.id.reload_button) {                        // 更新ボタン
+			// RSS(XML)を再ダウンロードとリストを描画
+			downloadXml.DisplayListView(listView);        // RSS(XML)のフィードをリスト状に表示
+		} else {// 処理をしない
+			rt = false;
 		}
 
 		return rt;
