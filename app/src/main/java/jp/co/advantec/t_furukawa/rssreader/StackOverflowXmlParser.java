@@ -230,20 +230,18 @@ public class StackOverflowXmlParser {
 		String text = readText(parser);
 
 		// 正規表現のパターンを作成
-		Pattern pattern = Pattern.compile("<img src=\"+(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+",Pattern.CASE_INSENSITIVE);
+		Pattern pattern = Pattern.compile(SEARCH_STRING_PREV + "(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+",Pattern.CASE_INSENSITIVE);
 		Matcher matcher = pattern.matcher(text);
 
 		if(matcher.find()) {
 			text = matcher.group();
+			// 正規表現による取得する文字列の例⇒ "<img src="https://livedoor.blogimg.jp/hamusoku/imgs/a/0/a02498cd.jpg"
 		}
 
-		// Todo:正規表現で「"(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+"」を指定すると、画像でないURLを取得してしまう。
-		// Todo:例：「<img src="https://xxxx.jpg"」を抜粋されてしまい、"<img src="の部分が余分
-
-		// データからImage URLより前の文字列を切り出す
+		// Image URLより前の文字列を切り出す
 		int index = text.indexOf(SEARCH_STRING_PREV);
 		index = index + SEARCH_STRING_PREV.length();			// 文字列の長さを取得
-		text = text.substring(index);							// [https://img.********.拡張子" alt="【朗報】ルイヴィトン発売～～～"]が設定されるはず
+		text = text.substring(index);							// "https://livedoor.blogimg.jp/hamusoku/imgs/a/0/a02498cd.jpg"などが設定されるはず
 
 		return text;
 	}
