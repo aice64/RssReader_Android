@@ -51,14 +51,14 @@ public class WebViewActivity  extends AppCompatActivity {
 
 	/**
 	 * キーを押した時の処理
-	 * @param keyCode
-	 * @param event
-	 * @return
+	 * @param keyCode	押されたキーを表すKeyEVENT列挙型定数値
+	 * @param event		キー・ストロークが発生したことを示すイベント
+	 * @return イベントを処理した場合、true を返す。そのイベントを次の受信機で処理することを許可する場合は false を返す。
 	 */
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event){
 
-		// 戻るページがある場合
+		// 「戻る」ボタンを押したら前の画面に戻る
 		if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_BACK) {
 			if(webView.canGoBack()){
 				webView.goBack();

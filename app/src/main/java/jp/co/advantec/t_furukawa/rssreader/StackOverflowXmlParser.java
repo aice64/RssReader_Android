@@ -221,41 +221,9 @@ public class StackOverflowXmlParser {
 	}
 
 	/**
-	 * フィードの description タグ内のImage URLを処理します。
-	 * @param parser パーサー
-	 * @return タグのデータ
-	 * @throws IOException 入出力処理中の例外
-	 * @throws XmlPullParserException XmlPullParserの機能がサポートされていない、または設定できない場合
-	 */
-	private String readDescriptionImage(XmlPullParser parser) throws IOException, XmlPullParserException {
-
-		parser.require(XmlPullParser.START_TAG, ns, "content:encoded");
-
-		final String SEARCH_STRING_PREV = "<img src=\"";	// Image URLより前に記載されている文字列
-		final String SEARCH_STRING_BACK = "\"";				// Image URLの末尾を検索する文字列
-
-		// <description>のデータを抽出
-		String text = readText(parser);
-
-		// データからImage URLより前の文字列を切り出す
-		int index = text.indexOf(SEARCH_STRING_PREV);
-		index = index + SEARCH_STRING_PREV.length();			// 文字列の長さを取得
-		text = text.substring(index);						// [https://img.********.拡張子" alt="【朗報】ルイヴィトン発売～～～"]が設定されるはず
-
-		// Image URLより後ろの文字列を切り出す
-		index = text.indexOf(SEARCH_STRING_BACK);			// 先頭の["]（画像URL文字列の末尾の次の文字）を探す
-		String img_src = text.substring(0,index);			// 先頭から["]までの文字列を切り出し
-
-		parser.require(XmlPullParser.END_TAG, ns, "content:encoded");
-		Log.i("StackOverflowXmlParser","readDescriptionImage img_src = " + img_src);
-		return img_src;
-
-	}
-
-	/**
 	 * フィードの 画像を示す タグ内のImage URLを正規表現で処理します。
 	 * @param parser パーサー
-	 * @return タグのデータ
+	 * @return タグのデータ(Image URL)
 	 * @throws IOException 入出力処理中の例外
 	 * @throws XmlPullParserException XmlPullParserの機能がサポートされていない、または設定できない場合
 	 */
@@ -264,7 +232,6 @@ public class StackOverflowXmlParser {
 		parser.require(XmlPullParser.START_TAG, ns, "content:encoded");
 
 		final String SEARCH_STRING_PREV = "<img src=\"";	// Image URLより前に記載されている文字列
-		final String SEARCH_STRING_BACK = "\"";				// Image URLの末尾を検索する文字列
 
 		// <description>のデータを抽出
 		String text = readText(parser);
@@ -277,16 +244,15 @@ public class StackOverflowXmlParser {
 			text = matcher.group();
 		}
 
-		// Todo:正規表現で「<img src="https://xxxx.jpg"」を抜粋しているが、"<img src="の部分も抜粋される。
 		// Todo:正規表現で「"(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+"」を指定すると、画像でないURLを取得してしまう。
+		// Todo:例：「<img src="https://xxxx.jpg"」を抜粋されてしまい、"<img src="の部分が余分
 
 		// データからImage URLより前の文字列を切り出す
 		int index = text.indexOf(SEARCH_STRING_PREV);
 		index = index + SEARCH_STRING_PREV.length();			// 文字列の長さを取得
-		text = text.substring(index);						// [https://img.********.拡張子" alt="【朗報】ルイヴィトン発売～～～"]が設定されるはず
-		String img_src = text;
+		text = text.substring(index);							// [https://img.********.拡張子" alt="【朗報】ルイヴィトン発売～～～"]が設定されるはず
 
-		return img_src;
+		return text;
 	}
 
 	/**

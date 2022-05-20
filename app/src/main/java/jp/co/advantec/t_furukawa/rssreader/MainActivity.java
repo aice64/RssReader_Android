@@ -80,36 +80,42 @@ public class MainActivity extends AppCompatActivity {
 
 	/**
 	 * アプリバーにメニューを作成するメソッド
-	 * @param menu
-	 * @return
+	 * @param menu 作成するメニュー
+	 * @return onCreateOptionsMenu()メソッドをオーバーライドした場合は、常にtrue
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
 		// インフレーターを使ってメニューを表示
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.option_menu, menu);
+		MenuInflater inflater = getMenuInflater();		// メニューインフレーターを取得
+		inflater.inflate(R.menu.option_menu, menu);		// メニュー用の.xmlファイルをインフレートしてメニュー部品にする。
 		return true;
 	}
 
 	/**
 	 * メニューボタンを押した時の反応を定義するメソッド
-	 * @param item
-	 * @return
+	 * @param item 選択されたMenuItemクラス
+	 * @return true オプションメニューが選択された時の処理を行った場合に返す。
+	 * false 処理をしていない場合に返す。
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+
+		boolean rt = true;
 
 		switch(item.getItemId()) {
 			case R.id.reload_button:						// 更新ボタン
 				// RSS(XML)を再ダウンロードとリストを描画
 				downloadXml.DisplayListView(listView);		// RSS(XML)のフィードをリスト状に表示
 				break;
+
 			default:
+				// 処理をしない
+				rt = false;
 				break;
 		}
 
-		return true;
+		return rt;
 	}
 
 }

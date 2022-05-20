@@ -19,10 +19,25 @@ import java.util.List;
  */
 public class CustomAdapter extends BaseAdapter {
 
-	private Context context;
-	private LayoutInflater inflater;
-	private int layoutID;
-	private List<StackOverflowXmlParser.Entry> parserList;
+	/**
+	 * コンテキスト
+	 */
+	private final Context context;
+
+	/**
+	 *
+	 */
+	private final LayoutInflater inflater;
+
+	/**
+	 * レイアウト用のXMLのID（表示する画面）
+	 */
+	private final int layoutID;
+
+	/**
+	 * XMLをパースしたリスト
+	 */
+	private final List<StackOverflowXmlParser.Entry> parserList;
 
 	static class ViewHolder {
 		TextView title;		// 表示するタイトル
@@ -33,26 +48,26 @@ public class CustomAdapter extends BaseAdapter {
 	/**
 	 *
 	 * @param context	コンテキスト
-	 * @param layoutID	カスタムアダプタレイアウト用のXMLのID
+	 * @param layoutID	カスタムアダプタレイアウト用のXMLのID（表示する画面）
 	 * @param list		XMLをパースしたリスト
 	 */
 	public CustomAdapter(Context context, int layoutID, List<StackOverflowXmlParser.Entry> list) {
 		this.context = context;
-		this.inflater = LayoutInflater.from(context);
 		this.layoutID = layoutID;
 		this.parserList = list;
 
+		this.inflater = LayoutInflater.from(context);
 	}
 
 	/**
 	 * ListViewに表示する要素数を返す
-	 * @return
+	 * @return ListViewに表示する要素数
 	 */
 	@Override
 	public int getCount() {
 		int i;
 		if(parserList != null) {
-			i = parserList.size();;
+			i = parserList.size();
 		}
 		else {
 			i = 0;
@@ -62,8 +77,8 @@ public class CustomAdapter extends BaseAdapter {
 
 	/**
 	 * リストのIndexをObject型で返す
-	 * @param position
-	 * @return
+	 * @param position アダプタのデータセット内で、データを取得したい項目の位置
+	 * @return 引数と同じ	Todo:講義で要確認⇒サイトによって戻り値が0だったり、引数のままだったりするが、一般的には何を設定するべきか
 	 */
 	@Override
 	public Object getItem(int position) {
@@ -72,8 +87,8 @@ public class CustomAdapter extends BaseAdapter {
 
 	/**
 	 * リストのIndexをlong型で返す
-	 * @param position
-	 * @return
+	 * @param position アダプタのデータセット内で、行 ID を指定したい項目の位置を指定します。
+	 * @return 引数と同じ	Todo:講義で要確認⇒サイトによって戻り値が0だったり、引数のままだったりするが、一般的には何を設定するべきか
 	 */
 	@Override
 	public long getItemId(int position) {
@@ -85,7 +100,7 @@ public class CustomAdapter extends BaseAdapter {
 	 * @param position ビューを取得したい項目の、アダプタのデータセット内での位置を指定します。
 	 * @param convertView 再利用する古いビュー
 	 * @param parent このビューが最終的に添付される親
-	 * @return
+	 * @return 指定された位置のデータに対応するView
 	 */
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -93,7 +108,8 @@ public class CustomAdapter extends BaseAdapter {
 		ViewHolder holder;
 
 		if(convertView == null) {
-			convertView = inflater.inflate(layoutID, null);
+
+			convertView = inflater.inflate(layoutID, null);			// フラグメントで表示する画面をXMLファイルからインフレートする。
 			holder = new ViewHolder();
 			holder.image = convertView.findViewById(R.id.image_item);
 			holder.title = convertView.findViewById(R.id.text_title);

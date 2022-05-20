@@ -29,7 +29,7 @@ public class DownloadXml {
 	/**
 	 * RSS(XML)のURL
 	 */
-	private String rssUrl;
+	private final String rssUrl;
 
 	/**
 	 * 取得したフィードをリスト状に記事一覧画面表示するListView
@@ -128,8 +128,8 @@ public class DownloadXml {
 		 * HTMLのマークアップ。HTML文字列を返します。
 		 * @param urlString RSS配信サイトのURL
 		 * @return メインアクティビティのUIに表示されるHTML文字列
-		 * @throws XmlPullParserException
-		 * @throws IOException
+		 * @throws XmlPullParserException XMLデータの解析に失敗
+		 * @throws IOException 入出力例外の発生
 		 */
 		private List<StackOverflowXmlParser.Entry> loadXmlFromNetwork(String urlString) throws XmlPullParserException, IOException {
 			InputStream stream = null;
@@ -138,7 +138,7 @@ public class DownloadXml {
 			StackOverflowXmlParser stackOverflowXmlParser = new StackOverflowXmlParser();
 
 			// パーサーのEntryオブジェクトのListと変数を作成する。（XMLフィードから抽出する各フィールドの値を保持するため。）
-			List<StackOverflowXmlParser.Entry> entries = null;
+			List<StackOverflowXmlParser.Entry> entries;
 
 			try {
 				stream = downloadUrl(urlString);						// 配信サイトのURLの接続を確立し、入力ストリームを取得する。
