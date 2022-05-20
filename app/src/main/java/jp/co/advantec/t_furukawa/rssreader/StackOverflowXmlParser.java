@@ -1,6 +1,5 @@
 package jp.co.advantec.t_furukawa.rssreader;
 
-import android.graphics.Bitmap;
 import android.util.Log;
 import android.util.Xml;
 
@@ -103,19 +102,14 @@ public class StackOverflowXmlParser {
 		 */
 		public final String imageUrlString;
 		/**
-		 * 見出し画像をダウンロードしたデータ
-		 */
-		public Bitmap imageBitmap;
-		/**
 		 * 更新時間
 		 */
 		public final String pubDate;
 
-		public Entry(String title, String link, String imageUrlString, Bitmap imageBitmap, String pubDate) {
+		public Entry(String title, String link, String imageUrlString, String pubDate) {
 			this.title = title;
 			this.link = link;
 			this.imageUrlString = imageUrlString;
-			this.imageBitmap = imageBitmap;
 			this.pubDate = pubDate;
 		}
 	}
@@ -135,7 +129,6 @@ public class StackOverflowXmlParser {
 		String title = null;
 		String link = null;
 		String imageUrlString = null;
-		Bitmap imageBitmap = null;
 		String pubDate = null;
 
 		// 終了タグまでパースする。
@@ -182,7 +175,7 @@ public class StackOverflowXmlParser {
 		}
 
 		Log.i("StackOverflowXmlParser","readItemメソッド終了 ------------------");
-		return new Entry(title, link, imageUrlString, imageBitmap, pubDate);
+		return new Entry(title, link, imageUrlString, pubDate);
 	}
 
 
