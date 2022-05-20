@@ -101,11 +101,13 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
-		boolean rt = true;
+		boolean rt;											// 戻り値
 
-		if (item.getItemId() == R.id.reload_button) {                        // 更新ボタン
+		if (item.getItemId() == R.id.reload_button) {		// 更新ボタン
 			// RSS(XML)を再ダウンロードとリストを描画
-			downloadXml.DisplayListView(listView);        // RSS(XML)のフィードをリスト状に表示
+			downloadXml.DisplayListView(listView);			// RSS(XML)のフィードをリスト状に表示
+			rt = true;
+
 		} else {// 処理をしない
 			rt = false;
 		}
